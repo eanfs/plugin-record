@@ -36,11 +36,14 @@ func (r *MP4Recorder) Close() (err error) {
 		} else {
 			// _, err = r.file.Write(r.cache.buf)
 			r.Info("mp4 write trailer", zap.Error(err))
+			r.UploadFile(r.filePath)
 		}
 		err = r.File.Close()
+
 	}
 	return
 }
+
 func (r *MP4Recorder) setTracks() {
 	if r.Audio != nil {
 		switch r.Audio.CodecID {

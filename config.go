@@ -2,7 +2,9 @@ package record
 
 import (
 	"bufio"
+	"context"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -12,6 +14,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"m7s.live/engine/v4/util"
 )
 
@@ -56,11 +60,19 @@ type Record struct {
 	Path          string //存储文件的目录
 	AutoRecord    bool
 	Filter        string
+	Minio         MinioConfig
 	Fragment      time.Duration //分片大小，0表示不分片
 	filterReg     *regexp.Regexp
 	fs            http.Handler
 	CreateFileFn  func(filename string, append bool) (FileWr, error) `json:"-" yaml:"-"`
 	GetDurationFn func(file io.ReadSeeker) uint32                    `json:"-" yaml:"-"`
+}
+
+type MinioConfig struct {
+	Endpoint  string
+	AccessKey string
+	SecretKey string
+	Bucket    string
 }
 
 func (r *Record) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -143,4 +155,52 @@ func (r *Record) Tree(dstPath string, level int) (files []*VideoFileInfo, err er
 		return
 	}
 
+}
+
+func (r *Record) UploadFile(fileName string) {
+	ctx := context.Background()
+	endpoint := r.Minio.Endpoint
+	accessKeyID := r.Minio.AccessKey
+	secretAccessKey := r.Minio.SecretKey
+	useSSL := true
+
+	// Initialize minio client object.
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure: useSSL,
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Make a new bucket called testbucket.
+	bucketName := "testbucket"
+	location := "us-east-1"
+
+	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
+	if err != nil {
+		// Check to see if we already own this bucket (which happens if you run this twice)
+		exists, errBucketExists := minioClient.BucketExists(ctx, bucketName)
+		if errBucketExists == nil && exists {
+			log.Printf("We already own %s\n", bucketName)
+		} else {
+			log.Fatalln(err)
+		}
+	} else {
+		log.Printf("Successfully created %s\n", bucketName)
+	}
+
+	// Upload the test file
+	// Change the value of filePath if the file is in another location
+	objectName := fileName
+	filePath := "/tmp/testdata"
+	contentType := "application/octet-stream"
+
+	// Upload the test file with FPutObject
+	info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
 }
