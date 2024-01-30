@@ -1,4 +1,4 @@
-module m7s.live/plugin/record/v4
+module github.com/eanfs/plugin-record/v4
 
 go 1.19
 
@@ -20,6 +20,7 @@ require (
 	github.com/bluenviron/mediacommon v1.5.1 // indirect
 	github.com/cnotch/ipchub v1.1.0 // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -28,6 +29,11 @@ require (
 	github.com/logrusorgru/aurora/v4 v4.0.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a // indirect
 	github.com/mcuadros/go-defaults v1.2.0 // indirect
+	github.com/minio/md5-simd v1.1.2 // indirect
+	github.com/minio/minio-go/v7 v7.0.66 // indirect
+	github.com/minio/sha256-simd v1.0.1 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/onsi/ginkgo/v2 v2.9.5 // indirect
 	github.com/pion/randutil v0.1.0 // indirect
 	github.com/pion/rtp v1.8.3 // indirect

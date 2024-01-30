@@ -9,7 +9,7 @@ https://github.com/Monibuca/plugin-record
 ## 插件引入
 ```go
 import (
-    _ "m7s.live/plugin/record/v4"
+    _ "github.com/eanfs/plugin-record/v4"
 )
 ```
 ## 配置
