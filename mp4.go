@@ -38,6 +38,12 @@ func (r *MP4Recorder) Close() (err error) {
 			r.Info("mp4 write trailer", zap.Error(err))
 		}
 		err = r.File.Close()
+		if err != nil {
+			r.Error("mp4 File Close", zap.Error(err))
+		} else {
+			r.Info("mp4 File Close", zap.Error(err))
+			r.UploadFile(r.filePath)
+		}
 	}
 	return
 }
