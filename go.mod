@@ -1,4 +1,4 @@
-module xiding.tech/plugin/record/v4
+module github.com/eanfs/plugin-record/v4
 
 go 1.19
 
