@@ -21,6 +21,7 @@ type RecordConfig struct {
 	Raw        Record `desc:"视频裸流录制配置"`
 	RawAudio   Record `desc:"音频裸流录制配置"`
 	recordings sync.Map
+	Storage    StorageConfig `desc:"MINIO 配置"`
 }
 
 //go:embed default.yaml

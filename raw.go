@@ -15,6 +15,7 @@ type RawRecorder struct {
 func NewRawRecorder() (r *RawRecorder) {
 	r = &RawRecorder{}
 	r.Record = RecordPluginConfig.Raw
+	r.Storage = RecordPluginConfig.Storage
 	return r
 }
 

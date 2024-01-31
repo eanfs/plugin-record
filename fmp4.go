@@ -46,6 +46,7 @@ type FMP4Recorder struct {
 func NewFMP4Recorder() *FMP4Recorder {
 	r := &FMP4Recorder{}
 	r.Record = RecordPluginConfig.Fmp4
+	r.Storage = RecordPluginConfig.Storage
 	return r
 }
 

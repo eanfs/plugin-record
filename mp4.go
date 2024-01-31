@@ -20,6 +20,7 @@ type MP4Recorder struct {
 func NewMP4Recorder() *MP4Recorder {
 	r := &MP4Recorder{}
 	r.Record = RecordPluginConfig.Mp4
+	r.Storage = RecordPluginConfig.Storage
 	return r
 }
 
@@ -42,7 +43,7 @@ func (r *MP4Recorder) Close() (err error) {
 			r.Error("mp4 File Close", zap.Error(err))
 		} else {
 			r.Info("mp4 File Close", zap.Error(err))
-			r.UploadFile(r.filePath)
+			r.UploadFile(r.Path, r.filePath)
 		}
 	}
 	return

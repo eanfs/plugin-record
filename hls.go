@@ -27,6 +27,7 @@ type HLSRecorder struct {
 func NewHLSRecorder() (r *HLSRecorder) {
 	r = &HLSRecorder{}
 	r.Record = RecordPluginConfig.Hls
+	r.Storage = RecordPluginConfig.Storage
 	return r
 }
 
@@ -75,7 +76,7 @@ func (h *HLSRecorder) OnEvent(event any) {
 	case AudioFrame:
 		if h.tsStartTime == 0 {
 			h.tsStartTime = v.AbsTime
-		} 
+		}
 		h.tsLastTime = v.AbsTime
 		h.Recorder.OnEvent(event)
 		pes := &mpegts.MpegtsPESFrame{

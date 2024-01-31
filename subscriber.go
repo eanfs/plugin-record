@@ -21,6 +21,7 @@ type IRecorder interface {
 
 type Recorder struct {
 	Subscriber
+	Storage  StorageConfig
 	SkipTS   uint32
 	Record   `json:"-" yaml:"-"`
 	File     FileWr `json:"-" yaml:"-"`
