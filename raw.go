@@ -35,6 +35,12 @@ func (r *RawRecorder) Start(streamPath string) error {
 func (r *RawRecorder) Close() (err error) {
 	if r.File != nil {
 		err = r.File.Close()
+		if err != nil {
+			r.Error("Raw File Close", zap.Error(err))
+		} else {
+			r.Info("Raw File Close", zap.Error(err))
+			go r.UploadFile(r.Path, r.filePath)
+		}
 	}
 	return
 }

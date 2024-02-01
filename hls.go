@@ -44,8 +44,14 @@ func (r *HLSRecorder) Close() (err error) {
 		r.playlist.WriteInf(inf)
 		r.tsStartTime = 0
 		err = r.File.Close()
+		if err != nil {
+			r.Error("HLS File Close", zap.Error(err))
+		} else {
+			r.Info("HLS File Close", zap.Error(err))
+			go r.UploadFile(r.Path, r.filePath)
+		}
 	}
-	return
+	return err
 }
 func (h *HLSRecorder) OnEvent(event any) {
 	var err error

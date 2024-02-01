@@ -198,12 +198,19 @@ func (r *FLVRecorder) OnEvent(event any) {
 	}
 }
 
-func (r *FLVRecorder) Close() error {
+func (r *FLVRecorder) Close() (err error) {
 	if r.File != nil {
 		if !r.append {
 			go r.writeMetaData(r.File, r.duration)
 		} else {
-			return r.File.Close()
+			err = r.File.Close()
+			if err != nil {
+				r.Error("FLV File Close", zap.Error(err))
+			} else {
+				r.Info("FLV File Close", zap.Error(err))
+				go r.UploadFile(r.Path, r.filePath)
+			}
+			return err
 		}
 	}
 	return nil

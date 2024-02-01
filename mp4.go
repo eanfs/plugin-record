@@ -43,7 +43,7 @@ func (r *MP4Recorder) Close() (err error) {
 			r.Error("mp4 File Close", zap.Error(err))
 		} else {
 			r.Info("mp4 File Close", zap.Error(err))
-			r.UploadFile(r.Path, r.filePath)
+			go r.UploadFile(r.Path, r.filePath)
 		}
 	}
 	return

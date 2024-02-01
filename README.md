@@ -64,4 +64,4 @@ record:
 - `http://localhost:8080/record/live/test.mp4` 将会读取对应的fmp4文件
 
 
-GOPROXY=proxy.golang.org go list -m github.com/eanfs/plugin-record/v4@v4.4.8
+GOPROXY=proxy.golang.org go list -m github.com/eanfs/plugin-record/v4@v4.4.9

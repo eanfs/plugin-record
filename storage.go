@@ -17,7 +17,14 @@ type StorageConfig struct {
 }
 
 func (r *Recorder) UploadFile(filePath string, fileName string) {
+	// 判断Storage是否配置，未配置就不上传
+	if r.Storage.Endpoint == "" || r.Storage.SecretKey == "" || r.Storage.AccessKey == "" || r.Storage.Bucket == "" {
+		r.Info("Minio Storage Config Not Configured")
+		return
+	}
+
 	ctx := context.Background()
+
 	endpoint := r.Storage.Endpoint
 	accessKeyID := r.Storage.AccessKey
 	secretAccessKey := r.Storage.SecretKey
