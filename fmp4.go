@@ -61,7 +61,7 @@ func (r *FMP4Recorder) StartWithFileName(streamPath string, fileName string) err
 	return r.start(r, streamPath, SUBTYPE_RAW)
 }
 
-func (r *FMP4Recorder) Close() error {
+func (r *FMP4Recorder) Close() (err error) {
 	if r.File != nil {
 		if r.video.fragment != nil {
 			r.video.fragment.Encode(r.File)
