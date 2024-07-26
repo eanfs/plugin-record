@@ -7,8 +7,8 @@ require (
 	github.com/minio/minio-go/v7 v7.0.66
 	github.com/yapingcat/gomedia v0.0.0-20240106100545-1b855b02fa0d
 	go.uber.org/zap v1.26.0
-	m7s.live/engine/v4 v4.14.6
-	m7s.live/plugin/hls/v4 v4.3.8
+	m7s.live/engine/v4 v4.15.2
+	m7s.live/plugin/hls/v4 v4.3.2
 )
 
 require (
@@ -19,17 +19,14 @@ require (
 	github.com/bluenviron/gohlslib v1.0.0 // indirect
 	github.com/bluenviron/gortsplib/v4 v4.6.2 // indirect
 	github.com/bluenviron/mediacommon v1.5.1 // indirect
-	github.com/cnotch/ipchub v1.1.0 // indirect
+	github.com/deepch/vdk v0.0.27 // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/mock v1.6.0 // indirect
-	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
-	github.com/google/uuid v1.5.0 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.17.4 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
+	github.com/google/pprof v0.0.0-20230309165930-d61513b1440d // indirect
+	github.com/google/uuid v1.4.0 // indirect
 	github.com/logrusorgru/aurora/v4 v4.0.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a // indirect
 	github.com/mcuadros/go-defaults v1.2.0 // indirect
