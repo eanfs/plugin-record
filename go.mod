@@ -3,9 +3,9 @@ module github.com/eanfs/plugin-record/v4
 go 1.19
 
 require (
-	github.com/Eyevinn/mp4ff v0.42.0
+	github.com/Eyevinn/mp4ff v0.40.1
 	github.com/minio/minio-go/v7 v7.0.66
-	github.com/yapingcat/gomedia v0.0.0-20240106100545-1b855b02fa0d
+	github.com/yapingcat/gomedia v0.0.0-20230905155010-55b9713fcec1
 	go.uber.org/zap v1.26.0
 	m7s.live/engine/v4 v4.15.2
 	m7s.live/plugin/hls/v4 v4.3.2

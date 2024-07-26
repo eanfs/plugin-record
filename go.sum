@@ -1,5 +1,5 @@
-github.com/Eyevinn/mp4ff v0.42.0 h1:I85b/EDTkP77GsoBL8nRV6sfFKZhAXoP6oJHU8fv6kM=
-github.com/Eyevinn/mp4ff v0.42.0/go.mod h1:w/6GSa5ghZ1VavzJK6McQ2/flx8mKtcrKDr11SsEweA=
+github.com/Eyevinn/mp4ff v0.40.1 h1:7q/AtT2CFrZuYiR4PWB3nqsbG0nhyP9QAiX8iTId/+M=
+github.com/Eyevinn/mp4ff v0.40.1/go.mod h1:w/6GSa5ghZ1VavzJK6McQ2/flx8mKtcrKDr11SsEweA=
 github.com/abema/go-mp4 v1.1.1 h1:OfzkdMO6SWTBR1ltNSVwlTHatrAK9I3iYLQfkdEMMuc=
 github.com/abema/go-mp4 v1.1.1/go.mod h1:vPl9t5ZK7K0x68jh12/+ECWBCXoWuIDtNgPtU2f04ws=
 github.com/aler9/writerseeker v1.1.0 h1:t+Sm3tjp8scNlqyoa8obpeqwciMNOvdvsxjxEb3Sx3g=
@@ -191,8 +191,8 @@ github.com/tklauser/numcpus v0.6.1 h1:ng9scYS7az0Bk4OZLvrNXNSAO2Pxr1XXRAPyjhIx+F
 github.com/tklauser/numcpus v0.6.1/go.mod h1:1XfjsgE2zo8GVw7POkMbHENHzVg3GzmoZ9fESEdAacY=
 github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS4MhqMhdFk5YI=
 github.com/ugorji/go/codec v1.2.11 h1:BMaWp1Bb6fHwEtbplGBGJ498wD+LKlNSl25MjdZY4dU=
-github.com/yapingcat/gomedia v0.0.0-20240106100545-1b855b02fa0d h1:dbvo9izqyW38pHtBKU0OYa5s+F8Vk1wlYxZ6qbK3nMY=
-github.com/yapingcat/gomedia v0.0.0-20240106100545-1b855b02fa0d/go.mod h1:WSZ59bidJOO40JSJmLqlkBJrjZCtjbKKkygEMfzY/kc=
+github.com/yapingcat/gomedia v0.0.0-20230905155010-55b9713fcec1 h1:ilNIuDBR+UKA3qefiyWRoFufIFn3E4tgEXbBM4ILH28=
+github.com/yapingcat/gomedia v0.0.0-20230905155010-55b9713fcec1/go.mod h1:WSZ59bidJOO40JSJmLqlkBJrjZCtjbKKkygEMfzY/kc=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
