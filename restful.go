@@ -53,6 +53,7 @@ func (conf *RecordConfig) API_start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	t := query.Get("type")
+	duration := query.Get("duration")
 	var id string
 	var err error
 	var irecorder IRecorder
@@ -93,6 +94,19 @@ func (conf *RecordConfig) API_start(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		util.ReturnError(util.APIErrorInternal, err.Error(), w, r)
 		return
+	}
+
+	if duration != "" {
+		if d, err := time.ParseDuration(duration); err == nil {
+			recorder.MaxDuration = d
+		}
+	}
+
+	// Enforce max duration
+	if recorder.MaxDuration > 0 {
+		time.AfterFunc(recorder.MaxDuration, func() {
+			irecorder.Stop()
+		})
 	}
 	util.ReturnError(util.APIErrorNone, id, w, r)
 }
