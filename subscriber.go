@@ -95,12 +95,21 @@ func (r *Recorder) cut(absTime uint32) {
 	}
 }
 
+func (r *Recorder) stopByDuration(absTime uint32) {
+	if ts := absTime - r.SkipTS; time.Duration(ts)*time.Millisecond >= r.Duration {
+		r.Info("stop recorder by duration")
+		r.SkipTS = absTime
+		r.Stop()
+	}
+}
+
 // func (r *Recorder) Stop(reason ...zap.Field) {
 // 	r.Close()
 // 	r.Subscriber.Stop(reason...)
 // }
 
 func (r *Recorder) OnEvent(event any) {
+	// r.Debug("🟡->🟡->🟡 Recorder OnEvent: ", zap.String("event", reflect.TypeOf(event).String()))
 	switch v := event.(type) {
 	case IRecorder:
 		if file, err := r.Spesific.(IRecorder).CreateFile(); err == nil {
@@ -117,6 +126,9 @@ func (r *Recorder) OnEvent(event any) {
 	case VideoFrame:
 		if r.Fragment > 0 && v.IFrame {
 			r.cut(v.AbsTime)
+		}
+		if r.Duration > 0 && v.IFrame {
+			r.stopByDuration(v.AbsTime)
 		}
 	default:
 		r.Subscriber.OnEvent(event)

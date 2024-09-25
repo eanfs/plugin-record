@@ -96,17 +96,11 @@ func (conf *RecordConfig) API_start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 设置录制时长限制
 	if duration != "" {
 		if d, err := time.ParseDuration(duration); err == nil {
 			recorder.Duration = d
 		}
-	}
-
-	// Enforce max duration
-	if recorder.Duration > 0 {
-		time.AfterFunc(recorder.Duration, func() {
-			irecorder.Stop()
-		})
 	}
 	util.ReturnError(util.APIErrorNone, id, w, r)
 }
