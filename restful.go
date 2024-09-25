@@ -98,13 +98,13 @@ func (conf *RecordConfig) API_start(w http.ResponseWriter, r *http.Request) {
 
 	if duration != "" {
 		if d, err := time.ParseDuration(duration); err == nil {
-			recorder.MaxDuration = d
+			recorder.Duration = d
 		}
 	}
 
 	// Enforce max duration
-	if recorder.MaxDuration > 0 {
-		time.AfterFunc(recorder.MaxDuration, func() {
+	if recorder.Duration > 0 {
+		time.AfterFunc(recorder.Duration, func() {
 			irecorder.Stop()
 		})
 	}
