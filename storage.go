@@ -2,6 +2,7 @@ package record
 
 import (
 	"context"
+	"os"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -71,4 +72,11 @@ func (r *Recorder) UploadFile(filePath string, fileName string) {
 	}
 
 	r.Info("Successfully uploaded of size ", zap.String("objectName", objectName), zap.Int64("Size", info.Size))
+
+	// Remove the file after upload
+	err = os.Remove(fileFullPath)
+	if err != nil {
+		r.Error("Remove file Error:", zap.Error(err))
+	}
+	r.Info("Successfully Removed of size ", zap.String("fileFullPath", fileFullPath))
 }
