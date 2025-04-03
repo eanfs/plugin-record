@@ -69,6 +69,8 @@ func (r *MP4Recorder) Close() (err error) {
 				}
 			}(r.File)
 		} else {
+			recordPath := r.Path
+			recordFilePath := r.filePath
 			go func(f FileWr) {
 				err = r.Movmuxer.WriteTrailer()
 				if err != nil {
@@ -78,15 +80,15 @@ func (r *MP4Recorder) Close() (err error) {
 					r.Info("mp4 write trailer", zap.Error(err))
 				}
 				err = f.Close()
+				if err != nil {
+					r.Error("mp4 File Close", zap.Error(err))
+				} else {
+					r.Info("mp4 File Close", zap.Error(err))
+					go r.UploadFile(recordPath, recordFilePath)
+				}
 			}(r.File)
 		}
-		err = r.File.Close()
-		if err != nil {
-			r.Error("mp4 File Close", zap.Error(err))
-		} else {
-			r.Info("mp4 File Close", zap.Error(err))
-			go r.UploadFile(r.Path, r.filePath)
-		}
+
 	}
 	isWrifeFrame = false
 	return
