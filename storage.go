@@ -44,25 +44,28 @@ func (r *Recorder) UploadFile(filePath string, fileName string) {
 	// Make a new bucket called testbucket.
 	location := "us-east-1"
 
-	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
+	// 检查Bucket是否存在，不存在就创建Bucket
+	exists, err := minioClient.BucketExists(ctx, bucketName)
 	if err != nil {
-		// Check to see if we already own this bucket (which happens if you run this twice)
-		exists, errBucketExists := minioClient.BucketExists(ctx, bucketName)
-		if errBucketExists == nil && exists {
-
-			r.Info("Bucket already Exists", zap.String("bucket", bucketName))
-		} else {
-			r.Error("Create Bucket Error:", zap.Error(err))
-		}
-	} else {
-		r.Info("Successfully created Bucket:", zap.String("bucket", bucketName))
+		r.Error("Failed to check bucket existence:", zap.Error(err))
+		return
 	}
 
-	// Upload the test file
+	if !exists {
+		err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
+		if err != nil {
+			r.Error("Create Bucket Error:", zap.Error(err))
+			return
+		}
+		r.Info("Successfully created Bucket:", zap.String("bucket", bucketName))
+	} else {
+		r.Info("Bucket already exists:", zap.String("bucket", bucketName))
+	}
+
 	// Change the value of filePath if the file is in another location
 	objectName := fileName
 	fileFullPath := filePath + "/" + objectName
-	r.Info("Prepare Upload  Path:  fileName:", zap.String("filePath", filePath), zap.String("objectName", objectName))
+	r.Info("Prepare Upload  Path:  fileName:", zap.String("objectName", objectName))
 	contentType := "application/octet-stream"
 
 	// Upload the test file with FPutObject
@@ -71,7 +74,7 @@ func (r *Recorder) UploadFile(filePath string, fileName string) {
 		r.Error("Minio PutObject Error:", zap.Error(err))
 	}
 
-	r.Info("Successfully uploaded of size ", zap.String("objectName", objectName), zap.Int64("Size", info.Size))
+	r.Info("Successfully uploaded of size ", zap.String("Key", info.Key), zap.Int64("Size", info.Size))
 
 	// Remove the file after upload
 	err = os.Remove(fileFullPath)

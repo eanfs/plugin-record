@@ -2,8 +2,6 @@ package record
 
 import (
 	"net"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/yapingcat/gomedia/go-mp4"
@@ -59,18 +57,24 @@ func (r *MP4Recorder) StartWithFileName(streamPath string, fileName string) erro
 
 func (r *MP4Recorder) Close() (err error) {
 	if r.File != nil {
+		recordPath := r.Path
+		recordFilePath := r.filePath
 		if !isWrifeFrame {
-			fullPath := filepath.Join(r.Path, "/", r.filePath)
+			// fullPath := filepath.Join(r.Path, "/", r.filePath)
 			go func(f FileWr) {
-				err = r.File.Close()
-				err = os.Remove(fullPath)
+				err = f.Close()
 				if err != nil {
-					r.Info("未写入帧，文件为空，直接删除，删除结果为=======" + err.Error())
+					r.Error("mp4 File Close", zap.Error(err))
+				} else {
+					r.Info("mp4 File Close", zap.Error(err))
+					go r.UploadFile(recordPath, recordFilePath)
 				}
+				// err = os.Remove(fullPath)
+				// if err != nil {
+				// 	r.Info("未写入帧，文件为空，直接删除，删除结果为=======" + err.Error())
+				// }
 			}(r.File)
 		} else {
-			recordPath := r.Path
-			recordFilePath := r.filePath
 			go func(f FileWr) {
 				err = r.Movmuxer.WriteTrailer()
 				if err != nil {
