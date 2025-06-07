@@ -2,7 +2,6 @@ package record
 
 import (
 	"context"
-	"os"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -76,10 +75,13 @@ func (r *Recorder) UploadFile(filePath string, fileName string) {
 
 	r.Info("Successfully uploaded of size ", zap.String("Key", info.Key), zap.Int64("Size", info.Size))
 
+	r.UpdateRecordDB()
+
 	// Remove the file after upload
-	err = os.Remove(fileFullPath)
-	if err != nil {
-		r.Error("Remove file Error:", zap.Error(err))
-	}
-	r.Info("Successfully Removed of size ", zap.String("fileFullPath", fileFullPath))
+	// 使用定时删除几天前的数据，减少并发录制时写入+删除的磁盘I/O
+	// err = os.Remove(fileFullPath)
+	// if err != nil {
+	// 	r.Error("Remove file Error:", zap.Error(err))
+	// }
+	// r.Info("Successfully Removed of size ", zap.String("fileFullPath", fileFullPath))
 }

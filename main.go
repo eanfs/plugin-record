@@ -72,7 +72,7 @@ var RecordPluginConfig = &RecordConfig{
 	afterDuration:               30,
 	MysqlDSN:                    "",
 	ExceptionPostUrl:            "http://www.163.com",
-	SqliteDbPath:                "./sqlite.db",
+	SqliteDbPath:                "./m7sv4.db",
 	DiskMaxPercent:              80.00,
 	LocalIp:                     getLocalIP(),
 	RecordFileExpireDays:        0,
@@ -137,6 +137,9 @@ func (conf *RecordConfig) OnEvent(event any) {
 				}
 			}()
 		}
+		//检查录像任务是否存在，不存在则启动
+		conf.CheckRecordDB()
+
 		conf.Flv.Init()
 		conf.Mp4.Init()
 		conf.Fmp4.Init()

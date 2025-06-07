@@ -68,6 +68,7 @@ func (r *Recorder) CreateFile() (f FileWr, err error) {
 		logFields = append(logFields, zap.Error(err))
 		r.Error("create file", logFields...)
 	}
+	r.SaveToDB()
 	return
 }
 
