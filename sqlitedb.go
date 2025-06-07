@@ -36,7 +36,7 @@ func (r *Recorder) SaveToDB() {
 		fileName = strings.ReplaceAll(r.Stream.Path, "/", "-") + "-" + time.Now().Format("2006-01-02-15-04-05")
 	}
 	filepath := RecordPluginConfig.Mp4.Path + "/" + r.Stream.Path + "/" + fileName + r.Ext //录像文件存入的完整路径（相对路径）
-	eventRecord := EventRecord{StreamPath: r.Stream.Path, RecordMode: "0", BeforeDuration: "0",
+	eventRecord := EventRecord{StreamPath: r.Stream.Path, RecId: r.ID, RecordMode: "0", BeforeDuration: "0",
 		AfterDuration: fmt.Sprintf("%.0f", r.Fragment.Seconds()), CreateTime: startTime, StartTime: startTime,
 		EndTime: endTime, Filepath: filepath, Filename: fileName + r.Ext, Urlpath: "record/" + strings.ReplaceAll(r.filePath, "\\", "/"), Fragment: fmt.Sprintf("%.0f", r.Fragment.Seconds()), Type: r.Ext}
 	err = db.Create(&eventRecord).Error
@@ -48,7 +48,7 @@ func (r *Recorder) SaveToDB() {
 }
 
 // 更新录像文件表中记录，包括录像文件的大小、结束时间以及录像状态
-func (r *Recorder) UpdateRecordDB() {
+func (r *Recorder) RemoveRecordById() {
 	endTime := time.Now().Format("2006-01-02 15:04:05")
 	fileName := r.FileName
 	if r.FileName == "" {
@@ -67,4 +67,3 @@ func (r *Recorder) UpdateRecordDB() {
 		r.Info("update to db success", zap.String("filepath", filepath))
 	}
 }
-

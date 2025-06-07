@@ -7,8 +7,8 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/minio/minio-go/v7 v7.0.66
 	github.com/shirou/gopsutil/v3 v3.23.8
-	github.com/yapingcat/gomedia v0.0.0-20230905155010-55b9713fcec1
-	go.uber.org/zap v1.26.0
+	github.com/yapingcat/gomedia v0.0.0-20240601043430-920523f8e5c7
+	go.uber.org/zap v1.27.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 	m7s.live/engine/v4 v4.15.2

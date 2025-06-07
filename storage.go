@@ -75,7 +75,7 @@ func (r *Recorder) UploadFile(filePath string, fileName string) {
 
 	r.Info("Successfully uploaded of size ", zap.String("Key", info.Key), zap.Int64("Size", info.Size))
 
-	r.UpdateRecordDB()
+	r.RemoveRecordById()
 
 	// Remove the file after upload
 	// 使用定时删除几天前的数据，减少并发录制时写入+删除的磁盘I/O
