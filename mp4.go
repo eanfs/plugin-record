@@ -57,46 +57,24 @@ func (r *MP4Recorder) StartWithFileName(streamPath string, fileName string) erro
 
 func (r *MP4Recorder) Close() (err error) {
 	if r.File != nil {
-		recordPath := r.Path
-		recordFilePath := r.filePath
-		if !isWrifeFrame {
-			// fullPath := filepath.Join(r.Path, "/", r.filePath)
-			go func(f FileWr) {
-				err = f.Close()
-				if err != nil {
-					r.Error("mp4 File Close", zap.Error(err))
-				} else {
-					r.Info("mp4 File Close", zap.Error(err))
-					go r.UploadFile(recordPath, recordFilePath)
-				}
-				// err = os.Remove(fullPath)
-				// if err != nil {
-				// 	r.Info("未写入帧，文件为空，直接删除，删除结果为=======" + err.Error())
-				// }
-			}(r.File)
+		err = r.Movmuxer.WriteTrailer()
+		if err != nil {
+			r.Error("mp4 write trailer", zap.Error(err))
 		} else {
-			go func(f FileWr) {
-				err = r.Movmuxer.WriteTrailer()
-				if err != nil {
-					r.Error("mp4 write trailer", zap.Error(err))
-				} else {
-					// _, err = r.file.Write(r.cache.buf)
-					r.Info("mp4 write trailer", zap.Error(err))
-				}
-				err = f.Close()
-				if err != nil {
-					r.Error("mp4 File Close", zap.Error(err))
-				} else {
-					r.Info("mp4 File Close", zap.Error(err))
-					go r.UploadFile(recordPath, recordFilePath)
-				}
-			}(r.File)
+			// _, err = r.file.Write(r.cache.buf)
+			r.Info("mp4 write trailer", zap.Error(err))
 		}
-
+		err = r.File.Close()
+		if err != nil {
+			r.Error("mp4 File Close", zap.Error(err))
+		} else {
+			r.Info("mp4 File Close", zap.Error(err))
+			go r.UploadFile(r.Path, r.filePath)
+		}
 	}
-	isWrifeFrame = false
 	return
 }
+
 func (r *MP4Recorder) setTracks() {
 	if r.Audio != nil {
 		switch r.Audio.CodecID {
