@@ -112,7 +112,7 @@ func (conf *RecordConfig) OnEvent(event any) {
 					expireTime := time.Now().AddDate(0, 0, -conf.RecordFileExpireDays)
 					// 创建包含查询条件的 EventRecord 对象
 					queryRecord := EventRecord{
-						EventLevel: "1", // 查询条件：event_level = 1
+						IsDelete: "0", // 查询条件：is_delete = 1
 					}
 					fmt.Printf(" Create Time: %s\n", expireTime.Format("2006-01-02 15:04:05"))
 					err = db.Where(&queryRecord).Where("create_time < ?", expireTime).Find(&eventRecords).Error

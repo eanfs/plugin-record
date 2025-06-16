@@ -268,12 +268,12 @@ func (conf *RecordConfig) API_list_recording_page(w http.ResponseWriter, r *http
 		query := r.URL.Query()
 		pageSize := query.Get("pageSize")
 		pageNum := query.Get("pageNum")
-		ID := query.Get("ID") //搜索条件
+		RecId := query.Get("id") //搜索条件
 		var outRecordings []any
 		var totalPageCount int = 1
-		if ID != "" {
+		if RecId != "" {
 			for _, record := range recordings {
-				if strings.Contains(record.(IRecorder).GetRecorder().ID, ID) {
+				if record.(IRecorder).GetRecorder().ID == RecId {
 					outRecordings = append(outRecordings, record)
 				}
 			}
