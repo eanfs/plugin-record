@@ -111,15 +111,15 @@ func (conf *RecordConfig) OnEvent(event any) {
 					var eventRecords []EventRecord
 					expireTime := time.Now().AddDate(0, 0, -conf.RecordFileExpireDays)
 					// 创建包含查询条件的 EventRecord 对象
-					queryRecord := EventRecord{
-						IsDelete: "0", // 查询条件：is_delete = 1
-					}
-					fmt.Printf(" Create Time: %s\n", expireTime.Format("2006-01-02 15:04:05"))
-					err = db.Where(&queryRecord).Where("create_time < ?", expireTime).Find(&eventRecords).Error
+					// queryRecord := EventRecord{
+					// 	IsDelete: "0", // 查询条件：is_delete = 1
+					// }
+					fmt.Printf(" 进行录像文件自动删除： 即将删除创建时间小于 %s 的录像文件。\n", expireTime.Format("2006-01-02 15:04:05"))
+					err = db.Where("create_time < ?", expireTime).Find(&eventRecords).Error
 					if err == nil {
 						if len(eventRecords) > 0 {
 							for _, record := range eventRecords {
-								fmt.Printf("ID: %d, Create Time: %s,filepath is %s\n", record.Id, record.CreateTime, record.Filepath)
+								fmt.Printf("执行删除 录像ID: %d, 创建时间: %s, 录像文件: %s\n", record.RecId, record.CreateTime, record.Filepath)
 								err = os.Remove(record.Filepath)
 								if err != nil {
 									fmt.Println("error is " + err.Error())
