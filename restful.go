@@ -317,3 +317,39 @@ func (conf *RecordConfig) API_list_recording_page(w http.ResponseWriter, r *http
 		return
 	}, w, r)
 }
+
+func (conf *RecordConfig) API_stop_stream(w http.ResponseWriter, r *http.Request) {
+	streamPath := r.URL.Query().Get("streamPath")
+	if streamPath == "" {
+		http.Error(w, "no streamPath", http.StatusBadRequest)
+		util.ReturnError(util.APIErrorNotFound, "no streamPath found", w, r)
+		return
+	}
+
+	var eventRecords []EventRecord
+	err := db.Where("stream_path = ? AND is_delete = ?", streamPath, "0").Find(&eventRecords).Error
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		util.ReturnError(util.APIErrorNotFound, "no such streamPath recorder found on db", w, r)
+		return
+	}
+
+	if len(eventRecords) == 0 {
+		util.ReturnError(util.APIErrorNotFound, "no active recordings found for streamPath in db", w, r)
+		return
+	}
+
+	var stoppedCount int
+	for _, record := range eventRecords {
+		if recorder, ok := conf.recordings.Load(record.RecId); ok {
+			recorder.(ISubscriber).Stop(zap.String("reason", "api-stop-by-streampath"))
+			stoppedCount++
+		}
+	}
+
+	util.ReturnFetchValue(func() any {
+		return map[string]interface{}{
+			"stoppedCount": stoppedCount,
+		}
+	}, w, r)
+}

@@ -2,7 +2,7 @@ module github.com/eanfs/plugin-record/v4
 
 go 1.21
 
-toolchain go1.21.3
+toolchain go1.24.3
 
 require (
 	github.com/Eyevinn/mp4ff v0.40.1
@@ -13,8 +13,8 @@ require (
 	go.uber.org/zap v1.27.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
-	m7s.live/engine/v4 v4.15.2
-	m7s.live/plugin/hls/v4 v4.3.2
+	m7s.live/engine/v4 v4.15.3
+	m7s.live/plugin/hls/v4 v4.3.9
 )
 
 require (
@@ -22,9 +22,9 @@ require (
 	github.com/aler9/writerseeker v1.1.0 // indirect
 	github.com/asticode/go-astikit v0.30.0 // indirect
 	github.com/asticode/go-astits v1.13.0 // indirect
-	github.com/bluenviron/gohlslib v1.0.0 // indirect
+	github.com/bluenviron/gohlslib v1.4.0 // indirect
 	github.com/bluenviron/gortsplib/v4 v4.8.0 // indirect
-	github.com/bluenviron/mediacommon v1.9.2 // indirect
+	github.com/bluenviron/mediacommon v1.11.1-0.20240525122142-20163863aa75 // indirect
 	github.com/deepch/vdk v0.0.27 // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
