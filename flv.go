@@ -26,6 +26,7 @@ type FLVRecorder struct {
 	timer         *time.Timer
 	stopCh        chan struct{}
 	mu            sync.Mutex
+	stopOnce      sync.Once // 确保 stopCh 只关闭一次
 	RecordMode
 }
 
@@ -45,7 +46,7 @@ func (r *FLVRecorder) GetRecordModeString(mode RecordMode) string {
 }
 
 // Goroutine 等待定时器停止录像
-func (r *FLVRecorder) waitForStop(streamPath string) {
+func (r *FLVRecorder) waitForStop() {
 	select {
 	case <-r.timer.C: // 定时器到期
 		r.StopTimerRecord(zap.String("reason", "timer expired"))
@@ -62,8 +63,10 @@ func (r *FLVRecorder) StopTimerRecord(reason ...zapcore.Field) {
 	// 停止录像
 	r.Stop(reason...)
 
-	// 关闭 stop 通道，停止 Goroutine
-	close(r.stopCh)
+	// 使用 sync.Once 确保 channel 只关闭一次，避免 panic
+	r.stopOnce.Do(func() {
+		close(r.stopCh)
+	})
 }
 
 // 重置定时器
@@ -87,7 +90,7 @@ func (r *FLVRecorder) StartWithDynamicTimeout(streamPath, fileName string, timeo
 	r.resetTimer(timeout)
 
 	// 启动 Goroutine 监听定时器
-	go r.waitForStop(streamPath)
+	go r.waitForStop()
 
 	return nil
 }
@@ -240,14 +243,7 @@ func (r *FLVRecorder) OnEvent(event any) {
 		}
 	case VideoFrame:
 		if r.VideoReader.Value.IFrame {
-			//go func() { //将视频关键帧的数据存入sqlite数据库中
-			//	var flvKeyfram = &FLVKeyframe{FLVFileName: r.Path + "/" + strings.ReplaceAll(r.filePath, "\\", "/"), FrameOffset: r.Offset, FrameAbstime: r.VideoReader.AbsTime}
-			//	db.Create(flvKeyfram)
-			//}()
-			//r.Info("这是关键帧，且取到了r.filePath是" + r.Path + r.filePath)
-			//r.Info("这是关键帧，且取到了r.VideoReader.AbsTime是" + strconv.FormatUint(uint64(r.VideoReader.AbsTime), 10))
-			//r.Info("这是关键帧，且取到了r.Offset是" + strconv.Itoa(int(r.Offset)))
-			//r.Info("这是关键帧，且取到了r.Offset是" + r.Stream.Path)
+			// 关键帧处理逻辑
 		}
 	case FLVFrame:
 		check := false

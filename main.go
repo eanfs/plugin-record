@@ -3,13 +3,13 @@ package record
 import (
 	_ "embed"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"os"
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	. "m7s.live/engine/v4"
 	"m7s.live/engine/v4/codec"
@@ -107,33 +107,29 @@ func (conf *RecordConfig) OnEvent(event any) {
 			//主要逻辑为
 			//搜索event_records表中event_level值为1的（非重要）数据，并将其create_time与当前时间比对，大于RecordFileExpireDays则进行删除，数据库标记is_delete为1，磁盘上删除录像文件
 			go func() {
-				for {
+				ticker := time.NewTicker(1 * time.Minute)
+				defer ticker.Stop()
+
+				for range ticker.C {
 					var eventRecords []EventRecord
 					expireTime := time.Now().AddDate(0, 0, -conf.RecordFileExpireDays)
-					// 创建包含查询条件的 EventRecord 对象
-					// queryRecord := EventRecord{
-					// 	IsDelete: "0", // 查询条件：is_delete = 1
-					// }
-					fmt.Printf(" 进行录像文件自动删除： 即将删除创建时间小于 %s 的录像文件。\n", expireTime.Format("2006-01-02 15:04:05"))
-					err = db.Where("create_time < ?", expireTime).Find(&eventRecords).Error
+					plugin.Info("进行录像文件自动删除", zap.String("expireTime", expireTime.Format("2006-01-02 15:04:05")))
+					err := db.Where("create_time < ?", expireTime).Find(&eventRecords).Error
 					if err == nil {
 						if len(eventRecords) > 0 {
 							for _, record := range eventRecords {
-								fmt.Printf("执行删除 录像ID: %d, 创建时间: %s, 录像文件: %s\n", record.RecId, record.CreateTime, record.Filepath)
-								err = os.Remove(record.Filepath)
-								if err != nil {
-									fmt.Println("error is " + err.Error())
+								plugin.Info("执行删除录像", zap.String("RecId", record.RecId), zap.String("CreateTime", record.CreateTime), zap.String("Filepath", record.Filepath))
+								if err := os.Remove(record.Filepath); err != nil {
+									plugin.Error("删除录像文件失败", zap.String("filepath", record.Filepath), zap.Error(err))
 								}
-								err = db.Delete(record).Error
-								if err != nil {
-									fmt.Println("error is " + err.Error())
+								if err := db.Delete(record).Error; err != nil {
+									plugin.Error("删除数据库记录失败", zap.String("RecId", record.RecId), zap.Error(err))
 								}
 							}
 						}
+					} else {
+						plugin.Error("查询过期录像失败", zap.Error(err))
 					}
-
-					// 等待 1 分钟后继续执行
-					<-time.After(1 * time.Minute)
 				}
 			}()
 		}

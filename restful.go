@@ -2,6 +2,7 @@ package record
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,6 +14,50 @@ import (
 	. "m7s.live/engine/v4"
 	"m7s.live/engine/v4/util"
 )
+
+// validateRecordPath 验证路径是否在允许的录制目录内，防止路径遍历攻击
+func (conf *RecordConfig) validateRecordPath(path string) error {
+	if path == "" {
+		return errors.New("path is empty")
+	}
+
+	// 获取绝对路径
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
+	// 清理路径，移除 .. 等
+	absPath = filepath.Clean(absPath)
+
+	// 检查是否在允许的录制目录内
+	allowedDirs := []string{
+		conf.Flv.Path,
+		conf.Mp4.Path,
+		conf.Fmp4.Path,
+		conf.Hls.Path,
+		conf.Raw.Path,
+		conf.RawAudio.Path,
+	}
+
+	for _, dir := range allowedDirs {
+		if dir == "" {
+			continue
+		}
+		absDir, err := filepath.Abs(dir)
+		if err != nil {
+			continue
+		}
+		absDir = filepath.Clean(absDir)
+
+		// 检查路径是否在允许的目录下
+		if strings.HasPrefix(absPath, absDir+string(filepath.Separator)) || absPath == absDir {
+			return nil
+		}
+	}
+
+	return errors.New("path not in allowed recording directories")
+}
 
 func (conf *RecordConfig) API_list(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
@@ -128,9 +173,17 @@ func (conf *RecordConfig) API_stop(w http.ResponseWriter, r *http.Request) {
 func (conf *RecordConfig) API_recordfile_delete(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	path := query.Get("path")
+
+	// 验证路径安全性
+	if err := conf.validateRecordPath(path); err != nil {
+		plugin.Error("路径验证失败", zap.String("path", path), zap.Error(err))
+		util.ReturnError(403, "invalid path: "+err.Error(), w, r)
+		return
+	}
+
 	err := os.Remove(path)
 	if err != nil {
-		plugin.Error("修改文件时出错", zap.Error(err))
+		plugin.Error("删除文件时出错", zap.String("path", path), zap.Error(err))
 		util.ReturnError(1, "删除文件时出错", w, r)
 		return
 	}
@@ -141,10 +194,28 @@ func (conf *RecordConfig) API_recordfile_modify(w http.ResponseWriter, r *http.R
 	query := r.URL.Query()
 	path := query.Get("path")
 	newName := query.Get("newName")
+
+	// 验证原路径安全性
+	if err := conf.validateRecordPath(path); err != nil {
+		plugin.Error("原路径验证失败", zap.String("path", path), zap.Error(err))
+		util.ReturnError(403, "invalid path: "+err.Error(), w, r)
+		return
+	}
+
+	// 构建新路径并验证
 	dirPath := filepath.Dir(path)
-	err := os.Rename(path, dirPath+"/"+newName)
+	newPath := filepath.Join(dirPath, newName)
+
+	// 验证新路径安全性
+	if err := conf.validateRecordPath(newPath); err != nil {
+		plugin.Error("新路径验证失败", zap.String("newPath", newPath), zap.Error(err))
+		util.ReturnError(403, "invalid new path: "+err.Error(), w, r)
+		return
+	}
+
+	err := os.Rename(path, newPath)
 	if err != nil {
-		plugin.Error("修改文件时出错", zap.Error(err))
+		plugin.Error("修改文件时出错", zap.String("path", path), zap.String("newPath", newPath), zap.Error(err))
 		util.ReturnError(1, "修改文件时出错", w, r)
 		return
 	}

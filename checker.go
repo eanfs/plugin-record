@@ -124,7 +124,7 @@ func sendExceptionCallback(exception *Exception) {
 		return
 	}
 
-	resp, err := http.Post(RecordPluginConfig.ExceptionPostUrl, "application/json", bytes.NewBuffer(data))
+	resp, err := httpClient.Post(RecordPluginConfig.ExceptionPostUrl, "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		plugin.Error("发送异常信息到第三方API失败", zap.Error(err))
 		return

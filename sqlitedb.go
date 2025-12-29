@@ -18,10 +18,13 @@ func initSqliteDB(sqliteDbPath string) *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = sqlitedb.AutoMigrate(&FLVKeyframe{})
-	err = sqlitedb.AutoMigrate(&EventRecord{})
-	err = sqlitedb.AutoMigrate(&Exception{})
-	if err != nil {
+	if err := sqlitedb.AutoMigrate(&FLVKeyframe{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := sqlitedb.AutoMigrate(&EventRecord{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := sqlitedb.AutoMigrate(&Exception{}); err != nil {
 		log.Fatal(err)
 	}
 	return sqlitedb
@@ -39,8 +42,7 @@ func (r *Recorder) SaveToDB() {
 	eventRecord := EventRecord{StreamPath: r.Stream.Path, RecId: r.ID, RecordMode: "0", BeforeDuration: "0",
 		AfterDuration: fmt.Sprintf("%.0f", r.Fragment.Seconds()), CreateTime: startTime, StartTime: startTime,
 		EndTime: endTime, Filepath: filepath, Filename: fileName + r.Ext, Urlpath: "record/" + strings.ReplaceAll(r.filePath, "\\", "/"), Fragment: fmt.Sprintf("%.0f", r.Fragment.Seconds()), Type: strings.TrimPrefix(r.Ext, ".")}
-	err = db.Create(&eventRecord).Error
-	if err != nil {
+	if err := db.Create(&eventRecord).Error; err != nil {
 		r.Error("save to db error", zap.Error(err))
 	} else {
 		r.Info("save to db success", zap.String("filepath", filepath))
@@ -56,8 +58,7 @@ func (r *Recorder) RemoveRecordById() {
 		AfterDuration: fmt.Sprintf("%.0f", r.Fragment.Seconds()),
 		EndTime:       endTime, IsDelete: "1"}
 
-	err = db.Where("stream_path = ? AND is_delete = ?", streamPath, "0").Updates(eventRecord).Error
-	if err != nil {
+	if err := db.Where("stream_path = ? AND is_delete = ?", streamPath, "0").Updates(eventRecord).Error; err != nil {
 		r.Error("update to db error", zap.Error(err))
 	} else {
 		r.Info("update to db success", zap.String("streamPath", streamPath))

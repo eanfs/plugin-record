@@ -3,11 +3,17 @@ package record
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"github.com/shirou/gopsutil/v3/disk"
 	"net/http"
 	"time"
+
+	"github.com/shirou/gopsutil/v3/disk"
+	"go.uber.org/zap"
 )
+
+// httpClient 带超时的 HTTP 客户端
+var httpClient = &http.Client{
+	Timeout: 10 * time.Second,
+}
 
 // 向第三方发送异常报警
 func SendToThirdPartyAPI(exception *Exception) {
@@ -15,31 +21,34 @@ func SendToThirdPartyAPI(exception *Exception) {
 	exception.ServerIP = RecordPluginConfig.LocalIp
 	data, err := json.Marshal(exception)
 	if err != nil {
-		fmt.Println("Error marshalling exception:", err)
+		plugin.Error("序列化异常信息失败", zap.Error(err))
 		return
 	}
 	err = db.Create(&exception).Error
 	if err != nil {
-		fmt.Println("异常数据插入数据库失败:", err)
+		plugin.Error("异常数据插入数据库失败", zap.Error(err))
 		return
 	}
-	resp, err := http.Post(RecordPluginConfig.ExceptionPostUrl, "application/json", bytes.NewBuffer(data))
+	resp, err := httpClient.Post(RecordPluginConfig.ExceptionPostUrl, "application/json", bytes.NewBuffer(data))
 	if err != nil {
-		fmt.Println("Error sending exception to third party API:", err)
+		plugin.Error("发送异常信息到第三方API失败", zap.Error(err))
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Failed to send exception, status code:", resp.StatusCode)
+		plugin.Error("发送异常信息失败", zap.Int("statusCode", resp.StatusCode))
 	} else {
-		fmt.Println("Exception sent successfully!")
+		plugin.Info("异常信息发送成功")
 	}
 }
 
 // 磁盘超上限报警
-func getDisckException(streamPath string) bool {
-	d, _ := disk.Usage("/")
+func getDiskException(streamPath string) bool {
+	d, err := disk.Usage("/")
+	if err != nil {
+		return false
+	}
 	if d.UsedPercent >= RecordPluginConfig.DiskMaxPercent {
 		exceptionChannel <- &Exception{AlarmType: "disk alarm", AlarmDesc: "disk is full", StreamPath: streamPath}
 		return true

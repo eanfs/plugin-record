@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
 	"m7s.live/engine/v4/util"
 )
 
@@ -76,8 +77,8 @@ func (conf *RecordConfig) API_event_pull(w http.ResponseWriter, r *http.Request)
 			}
 
 			// 打印响应内容
-			fmt.Println("Response Status:", resp.Status)
-			fmt.Println("Response Body:", string(body))
+			plugin.Info("第三方API响应状态", zap.String("status", resp.Status))
+			plugin.Info("第三方API响应内容", zap.String("body", string(body)))
 			resultJsonData["streamPath"] = newStreamPath
 			resultJsonData["code"] = 0
 			resultJsonData["msg"] = ""

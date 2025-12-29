@@ -2,14 +2,14 @@ package record
 
 import (
 	"errors"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"log"
 	"reflect"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 // var mysqldb *gorm.DB
-var err error
 
 var createDataBaseSql = `CREATE DATABASE IF NOT EXISTS m7srecord;`
 

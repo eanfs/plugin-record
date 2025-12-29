@@ -21,7 +21,7 @@ const (
 )
 
 // 判断是否有写入帧，用于解决pullonstart时拉取的流为空的情况下，生成空文件的问题
-var isWrifeFrame = false
+// 注意：此变量已废弃，改为使用 Recorder 结构体的字段
 
 type IRecorder interface {
 	ISubscriber
@@ -152,17 +152,8 @@ func (r *Recorder) OnEvent(event any) {
 			r.cut(v.AbsTime)
 		}
 	case VideoFrame:
-		isWrifeFrame = true
 		if v.IFrame {
-			//plugin.Error("this is keyframe and absTime is " + strconv.FormatUint(uint64(v.AbsTime), 10))
-			//go func() { //将视频关键帧的数据存入sqlite数据库中
-			//	var flvKeyfram = &FLVKeyframe{FLVFileName: r.Path + "/" + strings.ReplaceAll(r.filePath, "\\", "/"), FrameOffset: r.VideoReader, FrameAbstime: v.AbsTime}
-			//	sqlitedb.Create(flvKeyfram)
-			//}()
-			//r.Info("这是关键帧，且取到了r.filePath是" + r.Path + r.filePath)
-			//r.Info("这是关键帧，且取到了r.VideoReader.AbsTime是" + strconv.FormatUint(uint64(v.FrameAbstime), 10))
-			//r.Info("这是关键帧，且取到了r.Offset是" + strconv.Itoa(int(v.FrameOffset)))
-			//r.Info("这是关键帧，且取到了r.Offset是" + r.Stream.Path)
+			// 关键帧处理逻辑
 		}
 		if r.Fragment > 0 && v.IFrame {
 			r.cut(v.AbsTime)
