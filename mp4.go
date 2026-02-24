@@ -16,6 +16,7 @@ type MP4Recorder struct {
 	*mp4.Movmuxer `json:"-" yaml:"-"`
 	videoId       uint32
 	audioId       uint32
+	duration      uint32
 }
 
 func (r *MP4Recorder) SetId(string) {
@@ -69,7 +70,7 @@ func (r *MP4Recorder) Close() (err error) {
 			r.Error("mp4 File Close", zap.Error(err))
 		} else {
 			r.Info("mp4 File Close", zap.Error(err))
-			go r.UploadFile(r.Path, r.filePath)
+			go r.UploadFileWithTags(r.Path, r.filePath, r.duration)
 		}
 	}
 	return
@@ -107,6 +108,9 @@ func (r *MP4Recorder) OnEvent(event any) {
 			r.setTracks()
 		}
 	case AudioFrame:
+		if v.AbsTime > r.duration {
+			r.duration = v.AbsTime
+		}
 		if r.audioId != 0 {
 			var audioData []byte
 			if v.ADTS == nil {
@@ -119,6 +123,9 @@ func (r *MP4Recorder) OnEvent(event any) {
 			}
 		}
 	case VideoFrame:
+		if v.AbsTime > r.duration {
+			r.duration = v.AbsTime
+		}
 		if r.videoId != 0 {
 			if err = r.Write(r.videoId, util.ConcatBuffers(v.GetAnnexB()), uint64(v.AbsTime+(v.PTS-v.DTS)/90), uint64(v.AbsTime)); err != nil {
 				r.Stop(zap.Error(err))

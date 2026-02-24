@@ -324,7 +324,7 @@ func (r *FLVRecorder) Close() (err error) {
 				r.Error("FLV File Close", zap.Error(err))
 			} else {
 				r.Info("FLV File Close", zap.Error(err))
-				go r.UploadFile(r.Path, r.filePath)
+				go r.UploadFileWithTags(r.Path, r.filePath, uint32(r.duration))
 			}
 			return err
 		}

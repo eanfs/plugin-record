@@ -2,6 +2,8 @@ package record
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"sync"
 
 	"github.com/minio/minio-go/v7"
@@ -21,6 +23,10 @@ type StorageConfig struct {
 }
 
 func (r *Recorder) UploadFile(filePath string, fileName string) {
+	r.UploadFileWithTags(filePath, fileName, 0)
+}
+
+func (r *Recorder) UploadFileWithTags(filePath string, fileName string, durationMs uint32) {
 	// 使用信号量控制并发数
 	uploadSemaphore <- struct{}{}
 	defer func() { <-uploadSemaphore }()
@@ -74,8 +80,21 @@ func (r *Recorder) UploadFile(filePath string, fileName string) {
 	r.Info("Prepare Upload  Path:  fileName:", zap.String("objectName", objectName))
 	contentType := "application/octet-stream"
 
+	putOpts := minio.PutObjectOptions{ContentType: contentType}
+	// 所有格式均写入 size/duration tags
+	if stat, statErr := os.Stat(fileFullPath); statErr == nil {
+		putOpts.UserTags = map[string]string{
+			"video_size_bytes": fmt.Sprintf("%d", stat.Size()),
+		}
+		if durationMs > 0 {
+			putOpts.UserTags["video_duration_ms"] = fmt.Sprintf("%d", durationMs)
+		}
+	} else {
+		r.Warn("get file stat before upload failed", zap.Error(statErr), zap.String("file", fileFullPath))
+	}
+
 	// Upload the test file with FPutObject
-	info, err := minioClient.FPutObject(ctx, bucketName, objectName, fileFullPath, minio.PutObjectOptions{ContentType: contentType})
+	info, err := minioClient.FPutObject(ctx, bucketName, objectName, fileFullPath, putOpts)
 	if err != nil {
 		r.Error("Minio PutObject Error:", zap.Error(err))
 	}

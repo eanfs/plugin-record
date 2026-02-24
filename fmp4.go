@@ -43,6 +43,7 @@ type FMP4Recorder struct {
 	audio       mediaContext
 	seqNumber   uint32
 	ftyp        *mp4.FtypBox
+	duration    uint32
 }
 
 func (r *FMP4Recorder) SetId(string) {
@@ -97,7 +98,7 @@ func (r *FMP4Recorder) Close() (err error) {
 			r.Error("Fmp4 File Close", zap.Error(err))
 		} else {
 			r.Info("Fmp4 File Close", zap.Error(err))
-			go r.UploadFile(r.Path, r.filePath)
+			go r.UploadFileWithTags(r.Path, r.filePath, r.duration)
 		}
 		return err
 	}
@@ -172,10 +173,16 @@ func (r *FMP4Recorder) OnEvent(event any) {
 		r.initSegment.Moov.Encode(v)
 		r.seqNumber = 0
 	case AudioFrame:
+		if v.AbsTime > r.duration {
+			r.duration = v.AbsTime
+		}
 		if r.audio.trackId != 0 {
 			r.audio.push(r, v.AbsTime, v.DeltaTime, v.AUList.ToBytes(), mp4.SyncSampleFlags)
 		}
 	case VideoFrame:
+		if v.AbsTime > r.duration {
+			r.duration = v.AbsTime
+		}
 		if r.video.trackId != 0 {
 			flag := mp4.NonSyncSampleFlags
 			if v.IFrame {

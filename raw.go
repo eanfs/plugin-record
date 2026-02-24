@@ -1,16 +1,18 @@
 package record
 
 import (
+	"time"
+
 	"go.uber.org/zap"
 	. "m7s.live/engine/v4"
 	"m7s.live/engine/v4/codec"
 	"m7s.live/engine/v4/track"
-	"time"
 )
 
 type RawRecorder struct {
 	Recorder
-	IsAudio bool
+	IsAudio  bool
+	duration uint32
 }
 
 func (r *RawRecorder) SetId(string) {
@@ -69,7 +71,7 @@ func (r *RawRecorder) Close() (err error) {
 			r.Error("Raw File Close", zap.Error(err))
 		} else {
 			r.Info("Raw File Close", zap.Error(err))
-			go r.UploadFile(r.Path, r.filePath)
+			go r.UploadFileWithTags(r.Path, r.filePath, r.duration)
 		}
 	}
 	return
@@ -109,11 +111,17 @@ func (r *RawRecorder) OnEvent(event any) {
 		r.AddTrack(v)
 	case AudioFrame:
 		r.Recorder.OnEvent(event)
+		if v.AbsTime > r.duration {
+			r.duration = v.AbsTime
+		}
 		if _, err := v.WriteRawTo(r); err != nil {
 			r.Stop(zap.Error(err))
 		}
 	case VideoFrame:
 		r.Recorder.OnEvent(event)
+		if v.AbsTime > r.duration {
+			r.duration = v.AbsTime
+		}
 		if _, err := v.WriteAnnexBTo(r); err != nil {
 			r.Stop(zap.Error(err))
 		}
