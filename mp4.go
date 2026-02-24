@@ -58,19 +58,20 @@ func (r *MP4Recorder) StartWithFileName(streamPath string, fileName string) erro
 
 func (r *MP4Recorder) Close() (err error) {
 	if r.File != nil {
-		// WriteTrailer 失败说明文件不完整，不上传损坏文件
-		if err = r.Movmuxer.WriteTrailer(); err != nil {
+		err = r.Movmuxer.WriteTrailer()
+		if err != nil {
 			r.Error("mp4 write trailer", zap.Error(err))
-			r.File.Close()
-			return
+		} else {
+			// _, err = r.file.Write(r.cache.buf)
+			r.Info("mp4 write trailer", zap.Error(err))
 		}
-		r.Info("mp4 write trailer success")
-		if err = r.File.Close(); err != nil {
+		err = r.File.Close()
+		if err != nil {
 			r.Error("mp4 File Close", zap.Error(err))
-			return
+		} else {
+			r.Info("mp4 File Close", zap.Error(err))
+			go r.UploadFileWithTags(r.Path, r.filePath, r.duration)
 		}
-		r.Info("mp4 File Close success")
-		go r.UploadFileWithTags(r.Path, r.filePath, r.duration)
 	}
 	return
 }
