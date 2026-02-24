@@ -316,7 +316,13 @@ func (r *FLVRecorder) Close() (err error) {
 				}
 			}()
 			plugin.Info("====into close append false===recordid is===" + r.ID + "====record type is " + r.GetRecordModeString(r.RecordMode) + "====starttime  is " + time.Now().Add(-time.Duration(r.duration)*time.Millisecond).Format("2006-01-02 15:04:05"))
-			go r.writeMetaData(r.File, r.duration)
+			// 捕获当前值，避免 goroutine 闭包引用变化
+			filePath, fileName, durationMs := r.Path, r.filePath, uint32(r.duration)
+			go func() {
+				r.writeMetaData(r.File, r.duration)
+				// writeMetaData 内部已关闭文件，此处可安全上传
+				r.UploadFileWithTags(filePath, fileName, durationMs)
+			}()
 		} else {
 			plugin.Info("====into close append true===recordid is===" + r.ID + "====record type is " + r.GetRecordModeString(r.RecordMode))
 			err = r.File.Close()
