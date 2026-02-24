@@ -92,11 +92,11 @@ func (r *Recorder) UploadFileWithTags(filePath string, fileName string, duration
 	fileFullPath := filepath.Join(filePath, fileName)
 	putOpts := minio.PutObjectOptions{ContentType: "application/octet-stream"}
 	if stat, statErr := os.Stat(fileFullPath); statErr == nil {
-		putOpts.UserTags = map[string]string{
+		putOpts.UserMetadata = map[string]string{
 			"video-size-bytes": fmt.Sprintf("%d", stat.Size()),
 		}
 		if durationMs > 0 {
-			putOpts.UserTags["video-duration-ms"] = fmt.Sprintf("%d", durationMs)
+			putOpts.UserMetadata["video-duration-ms"] = fmt.Sprintf("%d", durationMs)
 		}
 	} else {
 		r.Warn("get file stat before upload failed", zap.Error(statErr), zap.String("file", fileFullPath))
