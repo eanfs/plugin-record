@@ -8,7 +8,6 @@ require (
 	github.com/Eyevinn/mp4ff v0.40.1
 	github.com/glebarez/sqlite v1.11.0
 	github.com/minio/minio-go/v7 v7.0.66
-	github.com/shirou/gopsutil/v3 v3.24.2
 	github.com/yapingcat/gomedia v0.0.0-20240906162731-17feea57090c
 	go.uber.org/zap v1.27.0
 	gorm.io/driver/mysql v1.5.7
@@ -18,11 +17,6 @@ require (
 )
 
 require (
-	github.com/abema/go-mp4 v1.2.0 // indirect
-	github.com/aler9/writerseeker v1.1.0 // indirect
-	github.com/asticode/go-astikit v0.30.0 // indirect
-	github.com/asticode/go-astits v1.13.0 // indirect
-	github.com/bluenviron/gohlslib v1.4.0 // indirect
 	github.com/bluenviron/gortsplib/v4 v4.8.0 // indirect
 	github.com/bluenviron/mediacommon v1.11.1-0.20240525122142-20163863aa75 // indirect
 	github.com/deepch/vdk v0.0.27 // indirect
@@ -58,6 +52,7 @@ require (
 	github.com/quic-go/quic-go v0.41.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rs/xid v1.5.0 // indirect
+	github.com/shirou/gopsutil/v3 v3.24.2 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/tklauser/go-sysconf v0.3.13 // indirect

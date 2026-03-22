@@ -1,9 +1,6 @@
 package record
 
 import (
-	"bytes"
-	"encoding/json"
-	"net/http"
 	"time"
 
 	"go.uber.org/zap"
@@ -13,7 +10,7 @@ import (
 func (conf *RecordConfig) CheckRecordDB() {
 	go func() {
 		plugin.Info("录制检查器已启动")
-		ticker := time.NewTicker(60 * time.Second)
+		ticker := time.NewTicker(5 * time.Minute)
 		defer func() {
 			ticker.Stop()
 			plugin.Info("录制检查器已停止")
@@ -108,32 +105,12 @@ func findStoppedRecordings(eventRecords []EventRecord, activeRecorders map[strin
 	return stopped
 }
 
-// sendExceptionCallback sends an exception notification to a third-party API and logs the event.
+// sendExceptionCallback 将异常记录到数据库
 func sendExceptionCallback(exception *Exception) {
 	exception.CreateTime = time.Now().Format("2006-01-02 15:04:05")
 	exception.ServerIP = RecordPluginConfig.LocalIp
 
 	if err := db.Create(&exception).Error; err != nil {
 		plugin.Error("异常数据插入数据库失败", zap.Error(err))
-		// Continue to attempt sending the callback
-	}
-
-	data, err := json.Marshal(exception)
-	if err != nil {
-		plugin.Error("序列化异常信息失败", zap.Error(err))
-		return
-	}
-
-	resp, err := httpClient.Post(RecordPluginConfig.ExceptionPostUrl, "application/json", bytes.NewBuffer(data))
-	if err != nil {
-		plugin.Error("发送异常信息到第三方API失败", zap.Error(err))
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		plugin.Error("发送异常信息失败，第三方API返回状态码", zap.Int("statusCode", resp.StatusCode))
-	} else {
-		plugin.Info("成功发送异常信息", zap.String("alarmType", exception.AlarmType))
 	}
 }

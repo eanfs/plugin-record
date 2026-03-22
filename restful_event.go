@@ -283,7 +283,7 @@ func (conf *RecordConfig) API_event_start(w http.ResponseWriter, r *http.Request
 		err = irecorder.StartWithDynamicTimeout(streamPath, fileName, 30*time.Second)
 	}
 	if err != nil {
-		exceptionChannel <- &Exception{AlarmType: "record", AlarmDesc: "录像失败", StreamPath: streamPath}
+		plugin.Error("录像失败", zap.String("streamPath", streamPath))
 		resultJsonData["msg"] = err.Error()
 		util.ReturnError(-1, errorJsonString(resultJsonData), w, r)
 		return
@@ -305,7 +305,7 @@ func (conf *RecordConfig) API_event_start(w http.ResponseWriter, r *http.Request
 	err = db.Omit("id", "fragment", "isDelete").Create(&eventRecord).Error
 	outid = eventRecord.Id
 	if err != nil {
-		exceptionChannel <- &Exception{AlarmType: "record", AlarmDesc: "录像失败", StreamPath: streamPath}
+		plugin.Error("录像失败", zap.String("streamPath", streamPath))
 
 		resultJsonData["msg"] = err.Error()
 		util.ReturnError(-1, errorJsonString(resultJsonData), w, r)

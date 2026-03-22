@@ -30,14 +30,16 @@ type EventRecord struct {
 //	return "eventrecord"
 //}
 
-// mysql数据库里Exception 定义异常结构体
+// Exception 定义异常结构体
 type Exception struct {
+	Id         uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	CreateTime string `json:"createTime" gorm:"type:varchar(50)"`
 	AlarmType  string `json:"alarmType" gorm:"type:varchar(50)"`
-	AlarmDesc  string `json:"alarmDesc" gorm:"type:varchar(50)"`
+	AlarmDesc  string `json:"alarmDesc" gorm:"type:varchar(255)"`
 	ServerIP   string `json:"serverIP" gorm:"type:varchar(50)"`
 	StreamPath string `json:"streamPath" gorm:"type:varchar(50)"`
-	FileName   string `json:"fileName" gorm:"type:varchar(100)"`
+	FileName   string `json:"fileName" gorm:"type:varchar(255)"`
+	FilePath   string `json:"filePath" gorm:"type:varchar(255);comment:文件基础路径，用于重传"`
 }
 
 // sqlite数据库用来存放每个flv文件的关键帧对应的offset及abstime数据
