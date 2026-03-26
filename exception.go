@@ -15,6 +15,10 @@ import (
 const (
 	minioUploadFailedAlarmType = "minio upload failed"
 	reuploadBatchSize          = 50
+
+	retryStatusPending = 0 // 待重传
+	retryStatusRunning = 1 // 重传中
+	retryStatusFailed  = 2 // 本轮重传失败
 )
 
 // runFailedUploadRetrier 启动 Minio 上传失败记录的定时重传任务
@@ -36,12 +40,17 @@ func (conf *RecordConfig) retryFailedUploads() {
 		return
 	}
 
+	// 每轮开始前，将上轮失败的记录重置为待重传状态
+	db.Model(&Exception{}).
+		Where("alarm_type = ? AND retry_status = ?", minioUploadFailedAlarmType, retryStatusFailed).
+		Update("retry_status", retryStatusPending)
+
 	plugin.Info("开始重传 Minio 上传失败的文件")
 	totalRetried := 0
 
 	for {
 		var exceptions []Exception
-		err := db.Where("alarm_type = ?", minioUploadFailedAlarmType).
+		err := db.Where("alarm_type = ? AND retry_status = ?", minioUploadFailedAlarmType, retryStatusPending).
 			Limit(reuploadBatchSize).
 			Find(&exceptions).Error
 		if err != nil {
@@ -51,6 +60,13 @@ func (conf *RecordConfig) retryFailedUploads() {
 		if len(exceptions) == 0 {
 			break
 		}
+
+		// 批量标记为重传中，防止重复拾取
+		ids := make([]uint, len(exceptions))
+		for i, exc := range exceptions {
+			ids[i] = exc.Id
+		}
+		db.Model(&Exception{}).Where("id IN ?", ids).Update("retry_status", retryStatusRunning)
 
 		for _, exc := range exceptions {
 			if conf.retryUploadSingle(exc) {
@@ -110,9 +126,11 @@ func (conf *RecordConfig) retryUploadSingle(exc Exception) bool {
 			zap.Error(lastErr))
 	}
 
-	// 本轮重试全部失败，更新异常描述，等待下次定时重传
-	db.Model(&exc).Update("alarm_desc",
-		fmt.Sprintf("重传失败(重试%d次): %v", maxRetries, lastErr))
+	// 本轮重试全部失败，标记为失败状态，等待下次定时重传时重置
+	db.Model(&exc).Updates(map[string]interface{}{
+		"alarm_desc":   fmt.Sprintf("重传失败(重试%d次): %v", maxRetries, lastErr),
+		"retry_status": retryStatusFailed,
+	})
 	return false
 }
 

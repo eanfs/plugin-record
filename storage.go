@@ -97,7 +97,7 @@ func (s *StorageConfig) newTransport() http.RoundTripper {
 		IdleConnTimeout:       90 * time.Second,    // 空闲连接回收时间
 		MaxIdleConnsPerHost:   s.getMaxIdleConns(),
 		ExpectContinueTimeout: 5 * time.Second,     // 100-continue 超时
-		TLSClientConfig:       &tls.Config{InsecureSkipVerify: !s.UseSSL},
+		TLSClientConfig:       &tls.Config{},
 	}
 }
 
